@@ -63,9 +63,10 @@ public class MemorySpace {
 			return -1;
 		}
 
-		for (int i = 0; i < freeList.getSize(); i++) {
+		ListIterator iterator = new ListIterator(freeList.getFirst());
 
-			MemoryBlock freeBlock = freeList.getBlock(i);
+		while (iterator.hasNext()) {
+			MemoryBlock freeBlock = iterator.next();
 	
 			if (freeBlock.length >= length) {
 			
@@ -74,14 +75,15 @@ public class MemorySpace {
 				allocatedList.addLast(allocatedBlock);
 	
 				if (freeBlock.length == length) {
-		
-					freeList.remove(i);
+			
+					freeList.remove(freeBlock);
 
 				} else {
-	
-					freeBlock.baseAddress = (freeBlock.baseAddress + length);
-					freeBlock.length = (freeBlock.length - length);
+				
+					freeBlock.baseAddress += length;
+					freeBlock.length -= length;
 				}
+	
 	
 				return allocatedBlock.baseAddress;
 			}
@@ -100,26 +102,25 @@ public class MemorySpace {
 	public void free(int address) {
 		//// Write your code here
 		if (address < 0 ) {
-			throw new IllegalArgumentException(
-					"Address must be non-negative.");
+			throw new IllegalArgumentException("index must be between 0 and size");
+	
 		}
 
-		for (int i = 0; i < allocatedList.getSize(); i++) {
+		ListIterator iterator = new ListIterator(allocatedList.getFirst());
 
-			MemoryBlock needToBeRemovedBlock = allocatedList.getBlock(i);
+		while (iterator.hasNext()) {
+			MemoryBlock blockToFree = iterator.next();
 	
-			if (needToBeRemovedBlock.baseAddress == address) {
-	
-				freeList.addLast(needToBeRemovedBlock);
-	
-				allocatedList.remove(i);
-				return;
+			if (blockToFree.baseAddress == address) {
+				freeList.addLast(blockToFree);
+			
+				allocatedList.remove(allocatedList.indexOf(blockToFree));
+				return; 
 			}
 		}
 
-		throw new IllegalArgumentException("No allocated block with the given address.");
 	}
-	
+		
 	/**
 	 * A textual representation of the free list and the allocated list of this memory space, 
 	 * for debugging purposes.
@@ -136,5 +137,24 @@ public class MemorySpace {
 	public void defrag() {
 		/// TODO: Implement defrag test
 		//// Write your code here
+		if (freeList.getSize() <= 1) {
+			return;
+		}
+	
+		ListIterator iterator = new ListIterator(freeList.getFirst());
+		MemoryBlock prevBlock = null;
+	
+		while (iterator.hasNext()) {
+			MemoryBlock currentBlock = iterator.next();
+	
+			if (prevBlock != null && prevBlock.baseAddress + prevBlock.length == currentBlock.baseAddress) {
+				prevBlock.length += currentBlock.length;
+	
+				freeList.remove(freeList.indexOf(currentBlock));
+
+			} else {
+				prevBlock = currentBlock;
+			}
+		}
 	}
 }
