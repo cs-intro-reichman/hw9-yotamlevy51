@@ -59,6 +59,33 @@ public class MemorySpace {
 	 */
 	public int malloc(int length) {		
 		//// Replace the following statement with your code
+		if (length < 1) {
+			return -1;
+		}
+
+		for (int i = 0; i < freeList.getSize(); i++) {
+
+			MemoryBlock freeBlock = freeList.getBlock(i);
+	
+			if (freeBlock.length >= length) {
+			
+				MemoryBlock allocatedBlock = new MemoryBlock(freeBlock.baseAddress, length);
+	
+				allocatedList.addLast(allocatedBlock);
+	
+				if (freeBlock.length == length) {
+		
+					freeList.remove(i);
+
+				} else {
+	
+					freeBlock.baseAddress = (freeBlock.baseAddress + length);
+					freeBlock.length = (freeBlock.length - length);
+				}
+	
+				return allocatedBlock.baseAddress;
+			}
+		}
 		return -1;
 	}
 
@@ -72,6 +99,25 @@ public class MemorySpace {
 	 */
 	public void free(int address) {
 		//// Write your code here
+		if (address < 0 ) {
+			throw new IllegalArgumentException(
+					"Address must be non-negative.");
+		}
+
+		for (int i = 0; i < allocatedList.getSize(); i++) {
+
+			MemoryBlock needToBeRemovedBlock = allocatedList.getBlock(i);
+	
+			if (needToBeRemovedBlock.baseAddress == address) {
+	
+				freeList.addLast(needToBeRemovedBlock);
+	
+				allocatedList.remove(i);
+				return;
+			}
+		}
+
+		throw new IllegalArgumentException("No allocated block with the given address.");
 	}
 	
 	/**

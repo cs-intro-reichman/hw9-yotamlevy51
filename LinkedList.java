@@ -1,3 +1,13 @@
+
+
+
+
+
+
+
+
+
+
 /**
  * Represents a list of Nodes. 
  */
@@ -55,7 +65,11 @@ public class LinkedList {
 					"index must be between 0 and size");
 		}
 		//// Replace the following statement with your code
-		return null;
+		Node cur = this.first;
+		for (int i = 0; i < index; i++) {
+				cur = cur.next;
+		}
+		return cur;
 	}
 	
 	/**
@@ -79,6 +93,29 @@ public class LinkedList {
 	 */
 	public void add(int index, MemoryBlock block) {
 		//// Write your code here
+		if (index < 0 || index > size) {
+			throw new IllegalArgumentException(
+					"index must be between 0 and size");
+		}
+
+		Node newNode = new Node(block);
+
+		if (index == 0) {
+			addFirst(block);
+		}
+		if (index == this.size) {
+			addLast(block);
+		}
+
+		Node cur = this.first;
+		for (int i = 0; i < index - 1; i++) {
+				cur = cur.next;
+		}
+		newNode.next = cur.next;
+		cur.next = newNode;
+
+		size ++;
+
 	}
 
 	/**
@@ -90,6 +127,21 @@ public class LinkedList {
 	 */
 	public void addLast(MemoryBlock block) {
 		//// Write your code here
+		if (this.first == null) { 
+			this.first = new Node(block);
+
+		}else{
+
+			Node cur = this.first;
+
+			while (cur.next != null) {
+				cur = cur.next;
+			}
+
+			cur.next = new Node(block);
+		}
+		
+		this.size++;
 	}
 	
 	/**
@@ -101,6 +153,11 @@ public class LinkedList {
 	 */
 	public void addFirst(MemoryBlock block) {
 		//// Write your code here
+		Node newNode = new Node(block);
+		newNode.next = this.first;
+		this.first = newNode;
+
+		this.size++;
 	}
 
 	/**
@@ -114,7 +171,14 @@ public class LinkedList {
 	 */
 	public MemoryBlock getBlock(int index) {
 		//// Replace the following statement with your code
-		return null;
+		if (index < 0 || index >= size) {
+			throw new IllegalArgumentException(
+					"Index must be between 0 (inclusive) and size (exclusive)");
+		}
+
+		Node cur = getNode(index);
+
+		return cur.block;
 	}	
 
 	/**
@@ -126,8 +190,21 @@ public class LinkedList {
 	 */
 	public int indexOf(MemoryBlock block) {
 		//// Replace the following statement with your code
-		return -1;
+		Node cur = this.first;
+		int counter = 0;
+
+		while (cur.block != null) {
+			if (cur.block == block) {
+				return counter;
+			}
+
+			cur = cur.next;
+			counter ++;
+		}
+		return  -1;
 	}
+
+
 
 	/**
 	 * Removes the given node from this list.	
@@ -137,6 +214,29 @@ public class LinkedList {
 	 */
 	public void remove(Node node) {
 		//// Write your code here
+		if (node == null) {
+			throw new IllegalArgumentException("Node to remove cannot be null.");
+		}
+	
+		if (this.first == node) {
+			this.first = this.first.next;
+
+		} else {
+			Node cur = this.first;
+
+			while (cur.next != node && cur.next != null) {
+			cur = cur.next;
+			}
+
+			if (cur.next == null) {
+            throw new IllegalArgumentException("Node not found in the list.");
+        	}
+
+			cur.next = cur.next.next;
+
+		}
+
+		size--;
 	}
 
 	/**
@@ -148,6 +248,21 @@ public class LinkedList {
 	 */
 	public void remove(int index) {
 		//// Write your code here
+		if (index < 0 || index >= size) {
+			throw new IllegalArgumentException(
+					"Index must be between 0 (inclusive) and size (exclusive)");
+		}
+
+		if (index == 0) {
+			this.first = this.first.next;
+		} else {
+
+			Node perv = getNode(index - 1);
+
+			perv.next = perv.next.next;
+		}
+
+		size--;
 	}
 
 	/**
@@ -159,6 +274,14 @@ public class LinkedList {
 	 */
 	public void remove(MemoryBlock block) {
 		//// Write your code here
+		
+		int toBeRemoved = indexOf(block);
+
+		if (toBeRemoved == -1) {
+			throw new IllegalArgumentException(
+					"The given memory block is not in this list");
+		}
+		remove(toBeRemoved);
 	}	
 
 	/**
@@ -173,6 +296,17 @@ public class LinkedList {
 	 */
 	public String toString() {
 		//// Replace the following statement with your code
-		return "";
+		StringBuilder sb = new StringBuilder();
+    
+    	for (int i = 0; i < size; i++) {
+
+        	sb.append(getNode(i).block);
+
+        	if (i < size - 1) {
+            sb.append(" -> "); 
+        	}
+    	}
+    
+    	return sb.toString();  
 	}
 }
